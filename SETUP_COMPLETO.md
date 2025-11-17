@@ -41,6 +41,15 @@ docker-compose exec db mysql -uroot -plaravel_password -e "CREATE DATABASE IF NO
 docker-compose exec app php artisan migrate
 ```
 
+### 6. Generación de Documentación de Swagger
+
+```bash
+# Generar documentación de Swagger
+docker-compose exec app php artisan l5-swagger:generate
+```
+
+**Nota:** Este paso es **CRÍTICO** cuando se clona el proyecto en una nueva máquina, ya que la documentación generada (archivos JSON/YAML) no se sube al repositorio Git.
+
 ## 🐛 Problemas Resueltos
 
 ### 1. Base de Datos No Creada

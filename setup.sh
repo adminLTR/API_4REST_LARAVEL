@@ -43,6 +43,18 @@ docker-compose exec app php artisan migrate
 echo -e "${GREEN}Configurando permisos...${NC}"
 docker-compose exec app chmod -R 775 storage bootstrap/cache
 
+# Generar documentación de Swagger
+echo -e "${GREEN}Generando documentación de Swagger...${NC}"
+docker-compose exec app php artisan l5-swagger:generate
+
+echo ""
 echo -e "${BLUE}=== ¡Instalación completada! ===${NC}"
-echo -e "${GREEN}Aplicación disponible en: http://localhost:8000${NC}"
-echo -e "${GREEN}PHPMyAdmin disponible en: http://localhost:8080${NC}"
+echo ""
+echo -e "${GREEN}Servicios disponibles:${NC}"
+echo -e "${GREEN}- API REST: http://localhost:8000${NC}"
+echo -e "${GREEN}- Documentación Swagger: http://localhost:8000/${NC}"
+echo -e "${GREEN}- PHPMyAdmin: http://localhost:8080${NC}"
+echo ""
+echo -e "Para regenerar la documentación de Swagger ejecuta:"
+echo -e "docker-compose exec app php artisan l5-swagger:generate"
+echo ""

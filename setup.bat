@@ -36,8 +36,20 @@ REM Dar permisos
 echo Configurando permisos...
 docker-compose exec app chmod -R 775 storage bootstrap/cache
 
+REM Generar documentación de Swagger
+echo Generando documentacion de Swagger...
+docker-compose exec app php artisan l5-swagger:generate
+
+echo.
 echo === Instalacion completada ===
-echo Aplicacion disponible en: http://localhost:8000
-echo PHPMyAdmin disponible en: http://localhost:8080
+echo.
+echo Servicios disponibles:
+echo - API REST: http://localhost:8000
+echo - Documentacion Swagger: http://localhost:8000/
+echo - PHPMyAdmin: http://localhost:8080
+echo.
+echo Para regenerar la documentacion de Swagger ejecuta:
+echo docker-compose exec app php artisan l5-swagger:generate
+echo.
 
 pause

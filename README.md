@@ -25,6 +25,7 @@ API REST desarrollada en Laravel para gestionar Pedidos (Orders) y Pagos (Paymen
   - Pedidos en estado "failed" pueden recibir nuevos intentos de pago
 - ✅ Listar pedidos con su estado actual, intentos de pago y pagos asociados
 - ✅ Tests feature completos que validan funcionalidades clave
+- ✅ **Documentación interactiva con Swagger UI** (OpenAPI 3.0)
 
 ## 🔧 Requisitos
 
@@ -41,12 +42,21 @@ API REST desarrollada en Laravel para gestionar Pedidos (Orders) y Pagos (Paymen
 setup.bat
 ```
 
+Este script automáticamente:
+- ✅ Copia el archivo .env
+- ✅ Instala dependencias de Composer
+- ✅ Genera la clave de aplicación
+- ✅ Levanta los contenedores Docker
+- ✅ Ejecuta las migraciones
+- ✅ **Genera la documentación de Swagger**
+- ✅ Configura permisos
+
 ### Opción 2: Instalación Manual
 
 1. **Clonar el repositorio**
 ```bash
 git clone <url-del-repositorio>
-cd PruebaTecnica-Laravel
+cd API_4REST_LARAVEL
 ```
 
 2. **Copiar archivo de configuración**
@@ -54,23 +64,19 @@ cd PruebaTecnica-Laravel
 copy .env.example .env
 ```
 
-3. **Levantar los contenedores Docker**
+3. **Instalar dependencias**
 ```bash
-docker-compose up -d
-```
-
-4. **Instalar Laravel dentro del contenedor**
-```bash
-# Si es la primera vez
-docker-compose run --rm app composer create-project laravel/laravel .
-
-# Si Laravel ya existe
 docker-compose run --rm app composer install
 ```
 
-5. **Generar la clave de aplicación**
+4. **Generar la clave de aplicación**
 ```bash
-docker-compose exec app php artisan key:generate
+docker-compose run --rm app php artisan key:generate
+```
+
+5. **Levantar los contenedores Docker**
+```bash
+docker-compose up -d
 ```
 
 6. **Ejecutar las migraciones**
@@ -78,9 +84,22 @@ docker-compose exec app php artisan key:generate
 docker-compose exec app php artisan migrate
 ```
 
-7. **Configurar permisos**
+7. **⚠️ IMPORTANTE: Generar documentación de Swagger**
+```bash
+docker-compose exec app php artisan l5-swagger:generate
+```
+
+8. **Configurar permisos**
 ```bash
 docker-compose exec app chmod -R 775 storage bootstrap/cache
+```
+
+### 🔄 Regenerar Documentación de Swagger
+
+Si actualizas los controladores o las anotaciones de Swagger, debes regenerar la documentación:
+
+```bash
+docker-compose exec app php artisan l5-swagger:generate
 ```
 
 ## ⚙️ Configuración
@@ -114,6 +133,8 @@ PAYMENT_API_RETRY_ATTEMPTS=3
 Una vez levantados los contenedores:
 
 - **API REST**: http://localhost:8000
+- **📚 Documentación Swagger**: http://localhost:8000 (redirecciona automáticamente)
+  - También disponible en: http://localhost:8000/api/documentation
 - **PHPMyAdmin**: http://localhost:8080
   - Usuario: `laravel`
   - Contraseña: `laravel_password`
@@ -203,6 +224,21 @@ Todos los servicios y repositorios están registrados en el contenedor de Larave
 | updated_at | timestamp | Fecha de actualización |
 
 ## 📡 API Endpoints
+
+### 📚 Documentación Interactiva
+
+**La forma más fácil de explorar y probar la API es usando Swagger UI:**
+
+👉 **http://localhost:8000** (redirecciona automáticamente a la documentación)
+
+Swagger UI te permite:
+- ✅ Ver todos los endpoints disponibles
+- ✅ Probar cada endpoint directamente desde el navegador
+- ✅ Ver ejemplos de request y response
+- ✅ Consultar los modelos de datos
+- ✅ Ver códigos de error y validaciones
+
+Para más información sobre Swagger, consulta [SWAGGER_SETUP.md](SWAGGER_SETUP.md)
 
 ### Base URL
 ```

@@ -17,3 +17,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Swagger generated documentation
+storage/api-docs/api-docs.json
+storage/api-docs/api-docs.yaml
