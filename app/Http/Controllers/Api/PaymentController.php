@@ -32,11 +32,16 @@ class PaymentController extends Controller
 
         $statusCode = $result['success'] ? 201 : 422;
 
-        return response()->json([
+        $response = [
             'success' => $result['success'],
             'message' => $result['message'],
-            'data' => new PaymentResource($result['payment']),
-        ], $statusCode);
+        ];
+
+        if (isset($result['payment']) && $result['payment']) {
+            $response['data'] = new PaymentResource($result['payment']);
+        }
+
+        return response()->json($response, $statusCode);
     }
 
     /**

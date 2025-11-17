@@ -239,8 +239,9 @@ class PaymentTest extends TestCase
 
         $orderId = $orderResponse->json('data.id');
 
-        // Primer intento de pago (falla)
+        // Configurar mock para ambos intentos de pago
         $this->mock(ExternalPaymentService::class, function ($mock) {
+            // Primer intento de pago (falla)
             $mock->shouldReceive('processPayment')
                 ->once()
                 ->andReturn([
@@ -249,8 +250,19 @@ class PaymentTest extends TestCase
                     'message' => 'Payment failed',
                     'data' => null,
                 ]);
+            
+            // Segundo intento de pago (éxito)
+            $mock->shouldReceive('processPayment')
+                ->once()
+                ->andReturn([
+                    'success' => true,
+                    'transaction_id' => 'txn_success_123',
+                    'message' => 'Payment processed successfully',
+                    'data' => ['id' => 3, 'status' => 'completed'],
+                ]);
         });
 
+        // Primer intento de pago (falla)
         $paymentResponse1 = $this->postJson("/api/v1/orders/{$orderId}/payments");
         $paymentResponse1->assertStatus(422)
             ->assertJson(['success' => false]);
@@ -262,17 +274,6 @@ class PaymentTest extends TestCase
         ]);
 
         // Segundo intento de pago (éxito)
-        $this->mock(ExternalPaymentService::class, function ($mock) {
-            $mock->shouldReceive('processPayment')
-                ->once()
-                ->andReturn([
-                    'success' => true,
-                    'transaction_id' => 'txn_success_123',
-                    'message' => 'Payment processed successfully',
-                    'data' => ['id' => 3, 'status' => 'completed'],
-                ]);
-        });
-
         $paymentResponse2 = $this->postJson("/api/v1/orders/{$orderId}/payments");
         $paymentResponse2->assertStatus(201)
             ->assertJson(['success' => true]);

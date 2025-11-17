@@ -47,37 +47,39 @@ class ExternalPaymentService
             ]);
 
             // Simular llamada a API externa usando reqres.in
-            // En producción, esto sería la API real de pagos
+            // Usamos GET /users/2 que funciona sin autenticación
+            // En producción, esto sería la API real de pagos (POST)
             $response = Http::timeout($this->timeout)
-                ->retry($this->retryAttempts, 100)
-                ->post($this->apiUrl . '/users', [
-                    'amount' => $amount,
-                    'currency' => 'USD',
-                    'metadata' => $additionalData,
-                ]);
+                ->retry($this->retryAttempts, 100, throw: false)
+                ->get($this->apiUrl . '/users/2');
 
             if ($response->successful()) {
                 $data = $response->json();
                 
                 Log::info('Pago procesado exitosamente', ['response' => $data]);
 
+                // Simular fallo aleatorio para testing (20% de probabilidad)
+                if (rand(1, 100) <= 20) {
+                    Log::warning('Simulación de fallo de pago');
+                    
+                    return [
+                        'success' => false,
+                        'error' => 'Payment gateway rejected the transaction',
+                        'message' => 'Insufficient funds or card declined',
+                        'data' => null,
+                    ];
+                }
+
                 return [
                     'success' => true,
-                    'transaction_id' => $data['id'] ?? uniqid('txn_'),
+                    'transaction_id' => 'txn_' . uniqid() . '_' . ($data['data']['id'] ?? rand(1000, 9999)),
                     'message' => 'Payment processed successfully',
-                    'data' => $data,
-                ];
-            }
-
-            // Simular fallo aleatorio para testing (30% de probabilidad)
-            if (rand(1, 10) <= 3) {
-                Log::warning('Simulación de fallo de pago');
-                
-                return [
-                    'success' => false,
-                    'error' => 'Payment gateway rejected the transaction',
-                    'message' => 'Insufficient funds or card declined',
-                    'data' => null,
+                    'data' => [
+                        'id' => $data['data']['id'] ?? rand(1, 100),
+                        'status' => 'completed',
+                        'amount' => $amount,
+                        'currency' => 'USD',
+                    ],
                 ];
             }
 
@@ -89,7 +91,7 @@ class ExternalPaymentService
             return [
                 'success' => false,
                 'error' => 'Payment processing failed',
-                'message' => $response->body(),
+                'message' => 'Payment gateway error: ' . $response->status(),
                 'data' => null,
             ];
 
